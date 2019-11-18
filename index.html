@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>画布</title>
+    <style>
+
+    </style>
+    <link rel="stylesheet" href="html5/css/index.css"/>
+    <script type="text/javascript" src="html5/js/jquery-3.3.1.js"></script>
+</head>
+<body>
+    <div id="section">
+        <canvas id="canvas">
+            你的浏览器不支持canvas
+        </canvas>
+        <div class="container">
+            <div class="nav-header">
+                <div class="nav-tools">
+                    <a href="#"></a>
+                </div>
+                <div class="nav-tools-box ">
+                    <ul class="nav-menu">
+                        <li class="active" data-index="0"><a href="#tools-color" >颜色</a></li>
+                        <li data-index="1"><a href="#tools-history">保存</a></li>
+                        <li data-index="2"><a href="#tools-setter">设置</a></li>
+                    </ul>
+                    <div class="bottom-underline"></div>
+                </div>
+            </div>
+            <div class="tools-body">
+                <div id="tools-color" class="tools-color active">
+                    <ul class="colors">
+                    </ul>
+                </div>
+                <div id="tools-history" class="display-history" data-hh="sss">
+                    这里是历史图片 ...
+                </div>
+                <div id="tools-setter">
+                    <p style="margin-top:50px;">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        /*(function(){
+            var test1 = document.getElementById('testClick');   // 清除事件绑定
+            var test2 = document.getElementById('test2');
+            var c = document.getElementById('c1');
+
+            console.log(test1,test2,c1);
+
+            test1.addEventListener('click',A);
+            test2.addEventListener('click',B);
+
+            c.addEventListener('click',function(){
+                test2.removeEventListener('click',B);
+                test1.removeEventListener('click',A);
+            })
+
+            function A(){window.alert('这是 AAAA ')}
+            function B(){window.alert('这是 BBBB ')}
+        })()*/
+    </script>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            class MyCharts{
+                constructor(obj){
+                    this.img = new Image();
+                    this.img.src = 'html5/img/clear.png';
+                    this.obj = obj;
+                    this.img.onload = () => {
+                        this.elem = document.getElementById(obj.el);
+                        this.test = document.getElementById(obj.test);
+                        this.ctx = this.elem.getContext('2d');
+                        this.width = obj.width || 300;
+                        this.height = obj.height || 200;
+                        this.bgColor = obj.bgColor || '#ccc';
+                        this.lineColor = obj.lineColor || '#000';
+                        this.create = function(){  obj.create()} || new Function();
+                        this.initObj = obj.data() || function(){return {}};
+                        this.selectorColorAll = ["red","blue","yellow","green","orange","pink","#000","#6a3"];
+                        this.index = 0;
+                        this.lineWidth = obj.lineWidth || 1;
+                        this.offsetX = null;
+                        this.offsetY = null;
+                        this.X = 0;
+                        this.Y = 0;
+                        this.toolsW = 38;
+                        this.toolsH = 29;
+                        this.isMove = false;                         // 状态是否可以画图
+                        this.isflag = true;                          // 状态 使用擦子 还是 画笔
+                        this.isClearMouse = false;
+                        this.isSlider = false;                      // 是否滑动线的宽
+
+                        this.start();                                // 启动
+                    }
+
+                }
+                start(){
+                    this.init();                // 初始化
+                    this.toolsBtns ();          // 初始显示 清除画布所有按钮
+                    this.create();              // 初始化一个函数
+
+                }
+                init () {                       // 设置画布的宽高背景
+                    this.elem.setAttribute('width',this.width);
+                    this.elem.setAttribute('height',this.height);
+                    this.elem.style.background = this.bgColor;
+                    this.startEvent();                         // 初始事件
+                    if(typeof this.initObj === 'object' || typeof this.initObj === 'Function'){
+                        this.data = this.initObj;
+                        console.log(this.data)
+                        console.log(this);
+
+                    }
+                }
+                startEvent () {          // canvas所有事件
+                    this.elem.onmousedown = e => this.mousedown(e);   // event
+                    this.elem.onmousemove = e => this.mousemove(e);
+                    this.elem.onmouseup = e =>{ this.mouseup(e) };
+                    //this.elem.onclick = (e)=>{ this.handleClick(e) };
+                    //this.test.onclick = this.testClick.bind(this);
+                }
+                toolsBtns (n) {   // 导航栏所有工具
+                    var w = this.width,      // 获取宽、高
+                        h = this.height,
+                        n = n || 0;
+                    (()=>{      //  最右变的清除工具    w:38  h:28
+                        let str = 'clear',
+                            txtWidth = Math.ceil(this.ctx.measureText(str).width);
+                        this.ctx.fillStyle = '#ddd';
+                        this.ctx.fillRect(0,0,w ,30);    // 工具栏背景
+
+                        this.ctx.fillStyle = !this.isClearMouse?'rgba(255,255,255,.8)':'rgba(222,222,222,.6)';
+                        this.ctx.fillRect(w-this.toolsW,h*0,this.toolsW,this.toolsH);
+                        this.ctx.strokeStyle = !this.isClearMouse?'transparent':'#666';
+                        this.ctx.strokeRect(w-this.toolsW-1,h*0+1,this.toolsW,this.toolsH-1);
+
+                        this.ctx.font = "12px sans-serif";  // 清除
+                        this.ctx.textBaseline = 'top';
+                        this.ctx.strokeStyle = !this.isClearMouse? '#da3d36d1': '#777';
+                        this.ctx.strokeText(str,w - txtWidth - 11 + n,10);
+                    })()
+                    // 橡皮擦  图标
+                    // console.log(w - (this.toolsW * 2 + 2));
+                    this.ctx.drawImage(this.img, w - (this.toolsW * 2 + 2), 0, this.toolsW, this.toolsH);
+                    // 颜色 选择
+                    this.selectorColor(w,h);
+                    // 线条的宽
+                    this.slideBtnLine(w,h);
+                }
+                selectorColor (w,h) {      // 选择择颜色按钮
+                    var curW = (this.toolsW * 3 + 10);
+                    this.selectorColorAll.forEach((val,i,arr)=>{
+                        this.ctx.fillStyle = val;
+                        this.ctx.fillRect(w - (curW + (this.toolsW * i)) ,0,this.toolsW,this.toolsH);
+                        this.ctx.strokeStyle = '#FFF';
+                        this.ctx.strokeRect(w - (curW + (this.toolsW * i)) ,0,this.toolsW   ,this.toolsH );
+                    })
+                }
+                // 滑动按钮
+                slideBtnLine (w,h,range) {
+                    let curX = this.toolsW * this.selectorColorAll.length + (this.toolsW * 2 + 20) ;
+                    range = range || 100;
+//                    this.ctx.clearRect(w - (curX +105),this.toolsH/2-12,w - (curX + 90),this.toolsH/2+8);
+                    this.measureDubble(w,curX,range);
+                    this.ctx.moveTo(w - curX,this.toolsH / 2);      // 范围条
+                    this.ctx.lineTo(w - curX - 100, this.toolsH / 2);
+
+                    this.ctx.strokeStyle = "#111";
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                    // 球体
+
+                }
+                measureDubble(w,curX,range){
+                    this.ctx.beginPath();
+                    this.ctx.clearRect(w - (curX + 105),this.toolsH/2-12,w - (curX + 88),this.toolsH/2+8);
+                    this.ctx.arc(w - curX - (range - 2), this.toolsH / 2,5 ,0, Math.PI * 2 );
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.fill();
+                    this.ctx.closePath();
+                }
+                // 鼠标按下时
+                mousedown (e) {
+                    e = e || window.event;
+                    this.offsetX = e.offsetX;
+                    this.offsetY = e.offsetY;
+                    this.beginPath();                    // 开始路径
+                    this.clearCanvasStyle (e,'down');   // 点击样式和清除涂鸦
+                    this.eraser(e);                     //  擦子
+                    this.handleLineColor(e);            // 获取事件颜色
+                    this.handleLineWidth (e);                // 获取线条的宽度
+                }
+                // 开始路径
+                beginPath(){
+                    if(this.offsetY > 30) {
+                        this.isMove = !this.isMove;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(this.offsetX, this.offsetY);
+                    }
+                }
+                //  涂鸦橡皮擦
+                eraser (e){
+                    let curX = e.offsetX,
+                            curY = e.offsetY;
+                    if((curX > this.width - (this.toolsW * 2 + 2) && curX < this.width - (this.toolsW )) &&
+                            curY > 0 && curY < this.toolsH){ // 判断是否擦子按钮
+                        this.isflag = !this.isflag;         // 是否要擦
+                    }
+                }
+                //   关闭状态  不可以继续画或擦
+                mouseup (e) {
+                    this.isMove = false;                // 关闭不在涂鸦乱画
+                    this.clearCanvasStyle (e,'up');
+                }
+                // 移动是绘制路线
+                mousemove (e) {
+                    e = e || window.event;
+                    this.Y = e.offsetY;
+                    this.X = e.offsetX;
+                    if(this.isMove && this.isflag){
+                        if(this.Y > 32 ) {
+                            this.ctx.save();
+                            this.ctx.lineTo(this.X, this.Y);
+                            this.ctx.lineWidth = this.lineWidth;
+                            this.ctx.strokeStyle = this.lineColor;
+                            this.ctx.stroke();
+                            this.ctx.restore();
+                        }
+                    }else if(this.isMove && !this.isflag){
+                        this.eraserClear(this.X,this.Y);    // 擦除涂鸦
+                    }
+                }
+                // 擦子的方法
+                eraserClear(curX,curY){
+                    if(curY > 31 ){
+                        this.ctx.save();
+                        this.ctx.beginPath();
+                        this.ctx.arc(curX,curY,30,0,Math.PI*2);
+                        this.ctx.clip();
+                        this.ctx.clearRect(curX-6,curY-6,12,12);
+                        this.ctx.restore();
+                    }
+                }
+                // 清除涂鸦全部
+                clearCanvasStyle (e,isDown) {
+                    e = e || window.event;
+                    isDown = isDown || null;
+                    let cX = e.offsetX, cY = e.offsetY;
+
+                    if((cX < this.width && cX > this.width - this.toolsW) &&
+                            (cY > 0 && cY < this.toolsH)){
+                        // 点击清除按钮样式
+//                        console.log(isDown,this);
+                        if(isDown === 'down'){
+                            this.isflag = true;
+                            this.isClearMouse = true;
+                            this.lineWidth = 1;
+                            this.elem.onmousemove = (e)=>{this.mousemove(e)};
+                            this.toolsBtns( 5 );
+                            this.ctx.clearRect(0, 30, this.width, this.height);
+                        }else if(isDown === 'up'){
+                            this.isClearMouse = false;
+                            this.toolsBtns( 5 );
+                        }
+
+                    }
+                }
+                // 线的宽度
+                handleLineWidth (e) {
+                    e = e || window.event;
+                    let curX = e.offsetX ,
+                        curY = e.offsetY,
+                        curW = this.toolsW * this.selectorColorAll.length + (this.toolsW * 2 + 20),
+                        w = this.width,
+                        h = this.height,
+                        rangeStart = w - (curW + 100),
+                        rangeEnd = w - curW,
+                        lineWidth = 0;
+
+                    if ( (curX > rangeStart && curX < rangeEnd) &&
+                            (curY > this.toolsH/2-8 && curY <  this.toolsH/2+8)) {
+                        console.log('Start',rangeStart);
+                        console.log('End',rangeEnd);
+                        lineWidth = parseInt((''+(rangeStart - Math.floor(curX))).slice(1));
+                        this.lineWidth = lineWidth / 2;
+
+                        this.ctx.clearRect(w - (curW +105),this.toolsH/2-12,w - (curW + 90),this.toolsH/2+8);
+                        this.slideBtnLine(w,h,rangeStart - lineWidth);  // 重新渲染
+
+                    }
+                }
+                // 选择线的颜色
+                handleLineColor (e) {
+                    e = e || window.event;
+                    let curX = e.offsetX , curY = e.offsetY;
+                    let w = this.width,
+                        h = this.height,
+                        color = this.selectorColorAll,
+                        curW = (this.toolsW * 3 + 10);
+
+//                        color.forEach((val,i,arr)=>{
+//                            if ( (curX > w - (curW + (this.tools * i))) &&
+//                                  (curX < w - curW + this.toolsW )
+//                                    &&
+//                                    (curY > 0 && curY < this.toolsH)){
+//                                    this.index = 0;
+//                                console.log(arr[this.index]);
+//                            }
+//
+//                        });
+                    if( (curX > w - curW && curX < w - curW + this.toolsW) &&
+                        (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[0];
+                    }else if ( (curX > w - (curW + (this.toolsW * 1)) && curX < (w - curW) ) &&
+                        (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[1];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 2)) && curX < (w - (curW+this.toolsW * 1)) ) &&
+                        (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[2];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 3)) && curX < (w - (curW+this.toolsW * 2)) ) &&
+                            (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[3];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 4)) && curX < (w - (curW+this.toolsW * 3)) ) &&
+                            (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[4];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 5)) && curX < (w - (curW+this.toolsW * 4)) ) &&
+                            (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[5];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 6)) && curX < (w - (curW+this.toolsW * 5)) ) &&
+                            (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[6];
+                    }else if ( (curX > w - (curW  + (this.toolsW * 7)) && curX < (w - (curW+this.toolsW * 5)) ) &&
+                            (curY > 0 && curY < this.toolsH)){
+                        this.lineColor = color[7];
+                    }
+
+
+                }
+                // 保存
+                preserve () {}
+
+                testClick (e) {  // 测试函数
+                    // elem.removeEventListener(type,handle,false);
+
+                    this.elem.onclick = null;
+                }
+            }
+
+
+            var myChart = new MyCharts({
+                el:'canvas',
+                width:600,
+                height:500,
+                bgColor:'rgba(22,255,255,.1)',
+                lineColor:null,
+                lineWidth:null,
+                test:'testClick',
+                data:function(){
+                  return {
+                      msg:"123"
+                  }
+                },
+                create: function(){
+
+                }
+            });
+
+
+            $(function(){
+
+                /* 菜单栏的切换 */
+                $('.nav-menu li').on('click',function(e){
+                    e.preventDefault();
+                    var i = parseInt($(this).attr('data-index'));
+                    var id = $(this).children().attr('href');
+                    $('.bottom-underline').css({transform:'translateX('+ (i * 120) +'px)'});
+                    $(this).addClass('active').siblings('.active').removeClass('active');
+                    $(id).addClass('active').siblings('.active').removeClass('active');
+                });
+
+
+
+                /* 获取li的颜色 */
+                var $toolsColor = $('.tools-color .colors');
+                var html = '';
+                for(let i=0;i<45;i++){
+                    html += `<li class='bg-color' style='background:${rgb()}' data-color="${rgb()}"></li>`;
+                }
+                $toolsColor.on('click','.bg-color',function(e){
+//                    console.log(this);
+                })
+                $toolsColor.html(html);
+            })
+
+            ///////////////////// 暂停中... /////////
+
+
+            function rgb(){
+                var r = rn(0,256),
+                    g = rn(0,256),
+                    b = rn(0,256);
+                return `rgb(${r},${g},${b})`
+            }
+            function rn (min, max) {
+                return Math.floor(Math.random() * (max - min + 1) -min );
+            }
+
+
+//            var c = document.createElement('canvas');
+//            var ctx = c.getContext('2d');
+//            var url = c.toDataURL();
+//            console.log(url.toString());
+            // url = canvas.toDataUrl()
+            //
+
+            //这里是所有的对象属性显示
+//            console.dir(ctx)
+        }
+    </script>
+</body>
+</html>

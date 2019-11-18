@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>html 5 新特性</title>
+    <style>
+        body{
+            text-align:center;
+        }
+        #c{
+            background:#eee;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="c" width="500" height="400">
+        </canvas>
+    </div>
+
+    <script>
+        //  图片插入
+        window.onload = function () {
+            var c = document.getElementById('c'),
+            ctx = c.getContext('2d');
+
+            function drawImage() {
+                var p3 = new Image();
+                p3.src = 'img/pin.png';
+                p3.onload = function () {
+                    var x = 0,
+                            y = 0,
+                            w = 200,
+                            h = 100;
+//                ctx.drawImage(p3,x,y);
+//                c.addEventListener("mousemove",function(e){
+//                    x = e.offsetX;
+//                    y = e.offsetY;
+//                    ctx.drawImage(p3,x-22,y-(195/2));
+//                })
+                    var deg1 = 10;
+                    setInterval(function () {
+                        ctx.clearRect(0, 0, 500, 400);     //清除矩形内的一切
+                        ctx.save();
+                        ctx.translate(250, 200);
+                        ctx.rotate(deg1 * Math.PI / 180);
+                        ctx.drawImage(p3, -(44 / 2), -(195 / 2));
+                        ctx.restore();
+                        deg1 += 10;
+
+                        initCanvas();    //  初始化一切数据
+                    }, 50)
+
+
+                }
+            }
+
+            function rect() {
+                // 矩形在左下方                     x1  y1 x2  y2
+                var g2 = ctx.createLinearGradient(100, 100, 100, 400); // 渐变对象
+                g2.addColorStop(0, '#f00');
+                g2.addColorStop(1, '#fff');
+                // ctx.lineWidth = 10;      // 框的宽度
+                ctx.fillStyle = g2;         // 矩形颜色
+                ctx.strokeRect(380, 180, 20, 220);  // 描边一个矩形 strokeStyle = "样式"
+                ctx.fillRect(420, 180, 20, 220);  // 矩形框
+                //ctx.clearRect(0,0,500,400);    // 清除矩形范围内的所有的东西
+
+                // ************************* 带动画的矩形
+                var x = y = 0,
+                    offY= offX = 1;
+                ctx.strokeRect(x,y,100,80);
+                setInterval(function(){         // fillRect     动画
+                    ctx.clearRect(0,0,500,400);
+                    if(x >= 500-100){
+                        offX = -1;
+                    }else if(x < 0) {
+                        offX = 1;
+                    }
+                    x += 10 * offX;
+                    ctx.strokeRect(x,y,100,80);
+                },50)
+
+
+                // *************************
+            }
+            //rect(); // 矩形
+
+            function fillText(){    // 绘制文本
+                var x = 0,
+                    y = 0;
+
+                ctx.textBaseline = 'top';       // 需要设置基线对齐
+                ctx.font = "30px sans-serif";  // 设置字体大小 和字体类型
+
+
+                var str = "Hello World";
+                var txtWidth = ctx.measureText(str).width;            // 测量文本宽度
+                // ctx.fillText(str,x,y);   // 填充一个字体
+                ctx.strokeText(str,500 - txtWidth, 0);
+
+                ctx.fillText(str,500 - txtWidth , 400-30);
+
+                // 渐变  需要创建一个渐变对象
+                var g1 = ctx.createLinearGradient(1, 1, 130, 100); // x1 y1 x2 y2
+                g1.addColorStop(0,'#f00');          // 添加渐变颜色
+                g1.addColorStop(0.3,'#0f0');
+                g1.addColorStop(0.4,'#00f');
+                g1.addColorStop(1,'#f0f');
+                ctx.strokeStyle = g1;
+                ctx.strokeText(str,0,0);
+
+            }
+            fillText(); // 调用fillText
+
+            function moveTo(){
+//                  ctx.beginPath();  // 重新开始新的路径
+//                ctx.lineTo(20,20);
+//                ctx.lineTo(20+10,20+10);
+//                ctx.moveTo(50,50);
+//                ctx.lineTo(50+30,50+30);
+//                ctx.lineTo(10,50);
+                // ctx.closePath();         // 闭合路径
+
+                ctx.lineTo(10,10);
+                ctx.lineTo(10,400-10);
+
+                ctx.strokeStyle = "red";
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(10,400-10);
+                ctx.lineTo(500-20,400-10);
+                ctx.lineTo(500-20-10,400-10-10);
+                ctx.lineTo(500-20,400-10);
+                ctx.lineTo(500-20-10,400-10+10);
+                ctx.lineTo(500-20,400-10);
+                ctx.strokeStyle = "blue";
+                ctx.lineWidth = 10;         // 线条的宽
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(10,10);
+                ctx.lineTo(500-20,10);
+                ctx.lineTo(500-20,10);
+                ctx.lineTo(500-20,400-10);
+                ctx.closePath();
+//                ctx.strokeStyle = "#666";
+//                ctx.stroke();
+
+                // ctx.closePath();             //  闭合路径     要三个配合这来使用
+                // ctx.fillStyle = "yellow";    // 指定颜色
+                // ctx.fill();      // 填充闭合路劲
+
+
+
+
+               // ctx.strokeStyle = "red";   // 绘制线条颜色
+                //ctx.stroke();
+
+            }
+            moveTo()    // 绘制一条线
+
+            function arcTo(){
+                ctx.beginPath();
+                ctx.lineWidth = 10;         // 设置线的宽
+
+                ctx.arc(250,200,100,-90*Math.PI/180,270*Math.PI/180);
+                ctx.strokeStyle = '#ff0';
+                ctx.stroke();
+
+            }
+//            arcTo()
+
+        };
+
+
+
+
+        function rn(min,max) {
+            return Math.floor(Math.random() * (max - min + 1 ) + min );
+        }
+
+        /*
+            HTML5 新特性
+                 （1）新增语义标签
+                 （2）增强型表单
+                 （3）视频音频
+                 （4）Canvas绘图
+                 （5）Svg绘图
+                 （6）地理定位
+                 （7）拖放API
+                  (8) webWorker
+                  (9) WebStorage
+                  (10)WebSocket
+
+         */
+
+
+//        5. 第三方绘制统计图工具
+//            （1） Chart.js 免费，提供了八九种统计图表
+//            （2） FusionChart.js 收费的，提供了90+中统计图表
+//            （3） ECharts : 百度提供的免费绘图工具，与地图整合的很好
+//            （4） FreeCharts ....
+
+/*      Canvas  绘图核心知识点
+        绘制矩形：
+                 ctx.fillRect()  ctx.strokeRect()  ctx.clearRect()
+        绘制文本：
+                ctx.fillText()  ctx.strokeText()  ctx.measureText()
+        绘制路劲：
+                ctx.beginPath()   ctx.closePath()
+                ctx.moveTo()    ctx.lineTo()
+                ctx.arc()
+                ctx.stroke()   ctx.fill()  ctx.clip()
+        绘制图像
+                ctx.drawImage()
+
+
+
+*/
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

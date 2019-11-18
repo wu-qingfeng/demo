@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>画布</title>
+    <style>
+        *{
+            padding:0;
+            margin:0;
+            box-sizing:border-box;
+        }
+        body {
+            text-align:center;
+        }
+        /* 画布的样式 */
+        #canvas {
+            background:#ddd;
+            margin-top:2px;
+        }
+    </style>
+</head>
+<body>
+<div id="section">
+    <canvas id="canvas">
+        你的浏览器不支持canvas
+    </canvas>
+</div>
+<script type="text/javascript">
+    window.onload = function () {
+        // 定义画布的宽和高
+        const H = 400,W = 500;
+        var canvas = document.getElementById('canvas');
+        canvas.setAttribute('width',W);
+        canvas.setAttribute('height',H);
+        var ctx =  canvas.getContext('2d');
+
+        // 绘制   矩形
+//            ctx.fillStyle = 'red';
+        //           x y w  h
+//            ctx.fillRect(0,0,40,20);
+        ctx.beginPath();
+
+        ctx.arc(80,90,50,0,2 * Math.PI);
+        ctx.stroke();
+
+        //这里是所有的对象属性显示
+        console.dir(ctx)
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+*{
+    padding:0;
+    margin:0;
+    box-sizing:border-box;
+}
+body a{
+    text-decoration:none;
+}
+body {
+    text-align:center;
+}
+ul,li{
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+/* 画布的样式 */
+#canvas {
+    /*background:#ddd;*/
+    /*margin-top:2px;*/
+}
+.container {
+    width:600px;
+    height:198px;
+    border:1px solid #ddd;
+    margin:5px auto;
+    box-shadow:1px 1px 6px 3px #888;
+}
+/******* canvas 菜单栏 *******/
+.nav-header {
+    width:100%;
+    height:48px;
+    background-color:#C3C3C3;
+    display:flex;
+
+}
+.nav-tools a{
+    display:block;
+    width:69px;
+    height:47px;
+    background:url('../img/arrow.png') no-repeat center -50px;
+}
+.nav-tools a:hover{
+    background-position:center 0;
+}
+
+.nav-tools-box {
+    flex-grow: 1;
+    position:relative;
+}
+.nav-tools-box ul{
+    display:flex;
+    justify-content:start;
+    margin-top:1px;
+}
+.nav-tools-box ul li{
+    width:120px;
+    height:47px;
+
+    overflow:hidden;
+}
+.nav-tools-box ul li + li{
+    border-left:1px solid #ccc;
+}
+.nav-tools-box ul li a{
+    display:block;
+    height:100%;
+    background:#dddddd;
+    line-height:47px;
+}
+.nav-tools-box ul li.active a{
+    color:#e4393c;
+}
+.bottom-underline {
+    position: absolute;
+    width:120px;
+    height:2px;
+    background:#e4393c;
+    transition:all 0.2s linear;
+    left:0;
+    bottom:0;
+    transform:translateX(0px);
+}
+
+
+.tools-body>div{
+    display:none;
+}
+.tools-body .active{
+    display:block;
+}
+.colors{
+    display:flex;
+    padding:10px;
+    flex-wrap: wrap;
+    justify-content:space-between;
+}
+.colors .bg-color{
+    width:36px;
+    height:36px;
+    border:1px solid #ddd;
+    border-radius:50%;
+    cursor:pointer;
+    margin:1px;
+}
+
+/*  历史记录  */
+.display-history {
+    height:150px;
+    background:pink;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
